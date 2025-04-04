@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,6 +66,9 @@ fun ProductDetailScreen(
             )
         )
     }
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
     // Efecto secundario
     LaunchedEffect(key1 = true) {
 
@@ -78,6 +82,7 @@ fun ProductDetailScreen(
 
                 val response = productService.getProductById(productId)
                 product = response
+                isLoading = false
                 Log.i("ProductDetail", response.toString())
             } catch (e:Exception) {
 
@@ -87,101 +92,114 @@ fun ProductDetailScreen(
 
     }
 
-    Box (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-    ) {
-        Column (
+    if (isLoading) {
+        // Loading
+        Box (
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator()
+        }
+    } else {
+        Box (
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding)
         ) {
-            AsyncImage(
-                model = product.image,
-                contentDescription = product.computedTitle,
+            Column (
                 modifier = Modifier
-                    .size(300.dp)
+                    .fillMaxSize()
                     .padding(16.dp),
-                contentScale = ContentScale.Fit
-            )
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AsyncImage(
+                    model = product.image,
+                    contentDescription = product.computedTitle,
+                    modifier = Modifier
+                        .size(300.dp)
+                        .padding(16.dp),
+                    contentScale = ContentScale.Fit
+                )
 
-            // Nombre del producto
-            Text(
-                text = product.title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 8.dp)
-                    .align(Alignment.Start)
-            )
+                // Nombre del producto
+                Text(
+                    text = product.title,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                        .align(Alignment.Start)
+                )
 
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
-            ){
-                repeat(product.rating.rate.toInt()) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star",
-                        tint = Amarillo,
-                        modifier = Modifier.size(30.dp)
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ){
+                    repeat(product.rating.rate.toInt()) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star",
+                            tint = Amarillo,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${product.rating.rate}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+
+                // Descripcion del producto
                 Text(
-                    text = "${product.rating.rate}",
+                    text = product.description,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end=16.dp)
                 )
-            }
 
-            // Descripcion del producto
-            Text(
-                text = product.description,
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end=16.dp)
-            )
+                Spacer(modifier = Modifier.weight(1f))
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Tarjeta con precio y botón de compra
-            Card (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Black)
-            ) {
-                Row (
+                // Tarjeta con precio y botón de compra
+                Card (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    // Precio del producto
-                    Text(
-                        text = "PRICE:\n$${product.price}",
-                        fontSize = 18.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    // Boton de compra
-                    Button(
-                        onClick = {},
-                        colors = ButtonDefaults.buttonColors(containerColor = Amarillo)
-                    ) {
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Black)
+                ) {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        // Precio del producto
                         Text(
-                            text = "Comprar",
-                            color = Color.Black
+                            text = "PRICE:\n$${product.price}",
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
                         )
+
+                        // Boton de compra
+                        Button(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(containerColor = Amarillo)
+                        ) {
+                            Text(
+                                text = "Comprar",
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+
 }
